@@ -6,7 +6,7 @@ PAL, or Peer-Assisted-Leadership, is an initiative of the University of Georgia 
 ### What is this doing on GitHub?
 Because a large number of students sign up for PAL, it would be difficult to pair off mentors and mentees by hand. Kyle Mercer, a former HPSC member, wrote the initial PAL sorting algorithm (PALgorithm) in JavaScript for [Node.js](https://nodejs.org/en/) using the [csvtojson](https://www.npmjs.com/package/csvtojson) module. Since its creation, HPSC members have continued to develop the algorithm and matching process; Monte Fischer rewrote the algorithm in Python and edited it significantly in an attempt to improve the strength of matched mentor/mentee pairs and make future algorithm tweaking easier, and Meredith Van De Velde continued to build upon the algorithm. Most recently, Elise Karinshak improved its matching capabilities by revising the degree category-assignment and similarity computation processes to account for multiple majors / minors. 
 
-This algorithm will continue to be improved upon by further iterations of PAL.
+The most updated version of this algorithm is palgorithm.py (the Python implementation). This algorithm will continue to be improved upon by further iterations of PAL.
 
 ## Details
 ### Running the PALgorithm
