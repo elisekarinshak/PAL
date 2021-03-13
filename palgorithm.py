@@ -1,92 +1,115 @@
-# -*- coding: utf-8 -*-
 """
 Created on Sun Feb 10 17:05:28 2019
-
 @author: DELLXPS
 """
 import numpy as np
 import pandas as pd
 from scipy.optimize import linear_sum_assignment
 
-major_index = 3
-preprof_index = 5
-mentee_mentor_index = 8
 
+#VARIABLES
+
+#Categorizing degrees:
 # Major bins
-businessBin = ["Accounting", "Accounting / International Business", "Actuarial Science Certificate", "Business & Political German Certificate", "Economics (A.B.)", "Economics (B.B.A.)", "Economics / International Business", "Environmental Economics & Management", "Finance", "Finance / International Business", "Financial Planning", "General Business (Griffin)", "General Business (Online)", "International Affairs", "International Business", "Legal Studies Certificate", "Management", "Management / International Business", "Management Info Systems / Int'l Business", "Management Information Systems", "Marketing", "Marketing / International Business", "Political Science", "Pre-Business", "Pre-Law", "Real Estate", "Real Estate / International Business", "Risk Management & Insurance", "Risk Mgmt & Insurance / Int'l Business"]
+businessBin = ["Accounting", "Accounting / International Business", "Actuarial Science Certificate", "Business & Political German Certificate", "Economics (A.B.)", "Economics (B.B.A.)", "Economics / International Business", "Environmental Economics & Management", "Finance", "Finance / International Business", "Financial Planning", "General Business (Griffin)", "General Business (Online)", "International Business", "Legal Studies Certificate", "Management", "Management / International Business", "Management Info Systems / Int'l Business", "Management Information Systems", "Marketing", "Marketing / International Business", "Pre-Business", "Pre-Law", "Real Estate", "Real Estate / International Business", "Risk Management & Insurance", "Risk Mgmt & Insurance / Int'l Business"]
+spiaBin = ["Criminal Justice", "International Affairs", "Political Science", "Public Policy and Management"]
 gradyBin = ["Advertising", "Communication Sciences & Disorders", "Communication Studies", "Entertainment and Media Studies", "Journalism", "New Media Certificate", "Pre-Journalism", "Public Relations", "Journalism - Visual Journalism"]
 agricultureBin = ["Agribusiness", "Agribusiness Law Certificate", "Agricultural & Applied Economics", "Agricultural Communication", "Agricultural Education", "Agricultural Engineering", "Agriscience & Environmental Systems", "Agrosecurity Certificate", "Animal Health", "Animal Science", "Avian Biology", "Dairy Science", "Food Industry Marketing & Administration", "Food Science", "Horticulture", "Integrated Pest Management Certificate", "International Agriculture Certificate", "Local Food Systems Certificate", "Organic Agriculture Certificate", "Poultry Science"]
 artBin = ["Art - Ceramics", "Art - Drawing", "Art - Fabric Design", "Art - Graphic Design", "Art - Jewelry & Metalwork", "Art - Painting", "Art - Photography", "Art - Printmaking", "Art - Scientific Illustration", "Art - Sculpture", "Art Education", "Art History", "Art X: Expanded Forms", "Furnishings & Interiors", "Interior Design", "Music", "Music Business Certificate", "Music Composition", "Music Performance", "Music Theory", "Music Therapy", "Studio Art", "Theatre", "Landscape Architecture", "Dance (A.B.)", "Dance (B.F.A.)", "Mass Media Arts"]
 biologyBin = ["Biochemistry & Molecular Biology", "Biological Science", "Biology", "Cellular Biology", "Chemistry (B.S.)","Chemistry (B.S.Chem.)", "Environmental Chemistry", "Genetics", "Global Health Certificate", "Applied Biotechnology", "Microbiology", "Pharmaceutical Sciences", "Pharmacy", "Physics & Astronomy", "Plant Biology", "Pre-Dentistry", "Pre-Medicine", "Pre-Optometry", "Pre-Pharmacy", "Pre-Veterinary Medicine (B.S.)", "Pre-Veterinary Medicine (B.S.A.)", "Pre-Veterinary Medicine (B.S.F.R.)"]
-computerBin = ["Cognitive Science", "Computer Science", "Computing Certificate", "Environmental Engineering", "Mathematics","Statistics", "Physics"]
+computerBin = ["Cognitive Science", "Computer Science", "Computing Certificate", "Data Science", "Environmental Engineering", "Mathematics","Statistics", "Physics"]
 humanitiesBin = ["Comparative Literature", "Film Studies", "History", "Honors Interdisc. Studies (A.B.)", "Honors Interdisc. Studies (B.S.)", "Honors Interdisc. Studies (B.S.A.)", "Honors Interdisc. Studies (B.S.F.C.S.)", "Interdisciplinary Studies (A.B.)", "Interdisciplinary Studies (A.B.)", "Interdisciplinary Studies (B.F.A.)", "Interdisciplinary Studies (B.S.)", "Interdisciplinary Writing Certificate","Linguistics", "Medieval Studies Certificate", "Native American Studies Certificate", "African American Studies", "African American Studies Certificate", "African Studies Certificate", "Anthropology", "Archaeological Sciences Certificate",  "Philosophy", "Pre-Theology", "Religion", "Women's Studies"]
 cultureBin = ["Classical Culture", "Classical Languages","English","French", "German", "Germanic & Slavic Languages", "Greek","Chinese Language & Literature", "British & Irish Studies Certificate", "Italian", "Japanese Language & Literatures", "Latin American & Caribbean Studies", "Latin American & Caribbean Studies Cert.", "Arabic","Asian Studies Certificate","Romance Languages", "Russian", "Spanish", "Chinese Language and Literature"]
-peopleBin = ["Dietetics", "Disability Studies Certificate", "Consumer Economics", "Consumer Foods", "Consumer Journalism", "Criminal Justice", "Environmental Health Science", "Environmental Resource Science", "Exercise & Sport Science", "Family & Consumer Sciences Education", "Fashion Merchandising", "Health Promotion", "Housing Management and Policy", "Human Development and Family Science", "Leadership & Service Certificate", "Athletic Training", "Nutritional Sciences", "Personal & Org. Leadership Cert.", "Social Work", "Sociology", "Sport Management", "Turfgrass Management", "Psychology"]
+peopleBin = ["Dietetics", "Disability Studies Certificate", "Consumer Economics", "Consumer Foods", "Consumer Journalism", "Environmental Health Science", "Environmental Resource Science", "Exercise & Sport Science", "Family & Consumer Sciences Education", "Fashion Merchandising", "Health Promotion", "Housing Management and Policy", "Human Development and Family Science", "Leadership & Service Certificate", "Athletic Training", "Nutritional Sciences", "Personal & Org. Leadership Cert.", "Social Work", "Sociology", "Sport Management", "Turfgrass Management", "Psychology"]
 educationBin = ["Early Childhood Education", "Educ. Psych & Instructional Tech Certif.", "English Education", "Health and Physical Education", "Mathematics / Mathematics Education", "Mathematics Education", "Middle School Education", "Music Education", "Science Education", "Special Education", "World Language Education", "Biology / Science Education", "English / English Education","History / Social Studies Education"]
 natureBin = ["Ecology", "Ecology (A.B.)", "Ecology (B.S.)", "Fisheries & Wildlife", "Entomology", "Forestry", "Geographic Information Science Cert.", "Geography (A.B.)", "Geography (B.S.)", "Geology (A.B.)", "Geology (B.S.)", "Global Studies Certificate", "Community Forestry Certificate", "Natural Resource Recreation & Tourism", "Pre-Forest Resources", "Water & Soil Resources (B.S.E.S.)", "Water & Soil Resources (B.S.F.R.)", "Water Resources Certificate", "Coastal & Oceanographic Eng. Cert.", "Atmospheric Sciences", "Environmental Ethics Certificate"]
 engineeringBin = ["Electrical and Electronics Engineering", "Engineering Physics Certificate", "Engineering Science Certificate", "Computer Systems Engineering", "Computer Systems Engineering Certificate", "Civil Engineering", "Mechanical Engineering", "Biochemical Engineering", "Biological Engineering"]
 undecidedBin = ["Undecided"]
 
+#store category bin labels in central bin
 binBin = []
-binBin.append(businessBin)
-binBin.append(gradyBin)
-binBin.append(agricultureBin)
-binBin.append(artBin)
-binBin.append(biologyBin)
-binBin.append(computerBin)
-binBin.append(humanitiesBin)
-binBin.append(cultureBin)
-binBin.append(peopleBin)
-binBin.append(educationBin)
-binBin.append(natureBin)
-binBin.append(engineeringBin)
+listOfBins = [businessBin, spiaBin, gradyBin, agricultureBin, artBin, biologyBin, computerBin, humanitiesBin, \
+              cultureBin, peopleBin, educationBin, natureBin, engineeringBin]
+for i in listOfBins:
+    binBin.append(i)
 
-major_dict = {'business': businessBin, 'grady': gradyBin, 'agriculture': agricultureBin, 'art': artBin, \
+major_dict = {'business': businessBin, 'spia':spiaBin, 'grady': gradyBin, 'agriculture': agricultureBin, 'art': artBin, \
     'biology': biologyBin, 'computer': computerBin, 'humanities': humanitiesBin, 'culture': cultureBin, \
     'people': peopleBin, 'education': educationBin, 'nature': natureBin, 'engineering': engineeringBin, \
     'undecided': undecidedBin}
 
+
+#METHODS    
+    
+#Assigns category corresponding with degree type. Functional for multiple degrees within a cell.
+#row: instance of data - corresponds with survey response
+#label: either majors or minors; specifies type of degree to sort into categories
 def find_categories(row, label):
     row_categories = []
+    
     if pd.isnull(row[label]):
         return 'none'
 
-    for major in row[label].split(';'):
-        for category in major_dict.keys():
-            if major in major_dict[category]:
-                row_categories.append(category)
-                break
+    #for each cell in the major column
+    for major_cell in row[label].split(';'): #separates majors by cell
+        
+        #parse major cell into list of majors
+        majors = major_cell.split(', ')
+        
+        #assign category for each major
+        category_cell = ""
+        for major in majors:
+            #for each category, search list of corresponding majors for specified major
+            for category in major_dict.keys():
+                #formats based on whether multiple majors
+                if major in major_dict[category]:
+                    if (category_cell == ""):
+                        category_cell = category
+                    elif (category_cell != category):
+                        category_cell = category_cell + ", " + category
+                    break
+        
+        #store list of categories in category cell
+        row_categories.append(category_cell)
+        
     return ';'.join(row_categories)
+#find categories
 
-# labels for the Google form survey data 
-measured_attributes = ['timestamp', 'email', 'first_name', 'last_name', 'majors', 'minors', 'professional', 'phone', 'year', 'type', 'double_dawgs', 'fun_question']
-
-# read in data
-form_responses = pd.read_csv('pal_responses.csv', delimiter=',', header=0, names=measured_attributes)
-form_responses.sort_values(by='timestamp', inplace=True)
-# drop all but the latest response of an individual
-form_responses.drop_duplicates(['first_name', 'last_name'], keep='last', inplace=True)
-# engineer additional features
-form_responses['major_category'] = form_responses.apply(lambda row: find_categories(row, 'majors'), axis=1)
-form_responses['minor_category'] = form_responses.apply(lambda row: find_categories(row, 'minors'), axis=1)
-# separate into mentors and mentees
-mentees = form_responses.loc[form_responses['type'] == 'Mentee', :].reset_index(drop=True)
-mentors = form_responses.loc[form_responses['type'] == 'Mentor', :].reset_index(drop=True)
-
+#Determines fit of matches by computing similarity. Compares majors, minors, 
+#categories, and professional track.
+#mentee: all mentee data
+#mentor: all mentor data
 def compute_similarity(mentee, mentor):
-    score = 0
-    # weights
+    #algorithm weights
     major_type = 5
-    same_major_bonus = 2
+    same_major_bonus = 3
     minor_type = 2
     same_minor_bonus = 1
-    professional = 10
+    professional = 8
     max_score = major_type + same_major_bonus + minor_type + same_minor_bonus + professional
+    
     # step 1, compute major similarity
     # Assign points for each same major category
-    score += major_type * len(set(mentee['major_category'].split(';')) & set(mentor['major_category'].split(';')))
-    # Assign points for each same major
-    score += same_major_bonus * len(set(mentee['majors'].split(';')) & set(mentor['majors'].split(';')))
+    score = 0
+    #for each cell in mentee major categories, split the categories and compare to split mentor categories
+    #major categories
+    for mentee_maj_cat in set(mentee['major_category'].split(";")):
+        mentee_cats = mentee_maj_cat.split(", ")
+        #compare mentee categories to mentor's categories
+        for mentor_maj_cat in set(mentor['major_category'].split(";")):
+            mentor_cats = mentor_maj_cat.split(", ")
+            for cat in mentee_cats:
+                if cat in mentor_cats:
+                    score = score + major_type
+    #same major bonus
+    for mentee_maj in set(mentee['majors'].split(";")):
+        mentee_majs = mentee_maj.split(", ")
+        #compare mentee majors to mentor majors
+        for mentor_maj in set(mentor['majors'].split(";")):
+            mentor_majs = mentor_maj.split(", ")
+            for major in mentee_majs:
+                if major in mentor_majs:
+                    score = score + same_major_bonus
 
     # step 2, compute pre-professional similarity
     if not pd.isnull(mentee['professional']) and not pd.isnull(mentor['professional']):
@@ -95,14 +118,53 @@ def compute_similarity(mentee, mentor):
 
     # step 3, compute minor similarity
     if not pd.isnull(mentee['minors']) and not pd.isnull(mentor['minors']):
-        # Assign points for each same minor category
-        score += minor_type * len(set(mentee['minor_category'].split(';')) & set(mentor['minor_category'].split(';')))
-        # Assign points for each same minor
-        score += same_minor_bonus * len(set(mentee['minors'].split(';')) & set(mentor['minors'].split(';')))
-
+        
+        #for each cell in mentee minor categories, split the categories and compare to split mentor minor categories
+        for mentee_min_cat in set(mentee['minor_category'].split(";")):
+            mentee_cats = mentee_maj_cat.split(", ")
+            #compare mentee categories to mentor's categories
+            for mentor_min_cat in set(mentor['minor_category'].split(";")):
+                mentor_cats = mentor_min_cat.split(", ")
+                for cat in mentee_cats:
+                    if cat in mentor_cats:
+                        score = score + minor_type
+        #same minor bonus
+        for mentee_min in set(mentee['minors'].split(";")):
+            mentee_mins = mentee_min.split(", ")
+            #compare mentee minors to mentor minors
+            for mentor_min in set(mentor['minors'].split(";")):
+                mentor_mins = mentor_min.split(", ")
+                for minor in mentee_mins:
+                    if minor in mentor_mins:
+                        score = score + same_minor_bonus
+    
     # this is, strictly speaking, a cost function
     return max_score - score
+#compute_similarity
 
+
+#CODE
+    
+#read in data
+#labels for the Google form survey data 
+measured_attributes = ['timestamp', 'email', 'first_name', 'last_name', 'majors', 'minors', 'professional', 'phone', 'year', 'type', 'double_dawgs', 'fun_question']
+form_responses = pd.read_csv('~/Desktop/Involvement/HPSC/PAL/pal_responses_S2021.csv', delimiter=',', header=0, names=measured_attributes)
+form_responses.sort_values(by='timestamp', inplace=True)
+
+# drop all but the latest response of an individual
+form_responses.drop_duplicates(['first_name', 'last_name'], keep='last', inplace=True)
+# engineer additional features
+form_responses['major_category'] = form_responses.apply(lambda row: find_categories(row, 'majors'), axis=1)
+form_responses['minor_category'] = form_responses.apply(lambda row: find_categories(row, 'minors'), axis=1)
+# ensure freshman are mentees and upperclassmen are mentors; reassign if necessary
+form_responses.loc[(form_responses['year'] == 'Freshman'),'type']='Mentee'
+form_responses.loc[(form_responses['year'] == 'Junior'),'type']='Mentor'
+form_responses.loc[(form_responses['year'] == 'Senior'),'type']='Mentor'
+# separate into mentors and mentees
+mentees = form_responses.loc[form_responses['type'] == 'Mentee', :].reset_index(drop=True)
+mentors = form_responses.loc[form_responses['type'] == 'Mentor', :].reset_index(drop=True)
+
+#create match matrix
 number_mentors = len(mentors)
 number_mentees = len(mentees)
 match_matrix = np.zeros([number_mentees, number_mentors])
@@ -111,17 +173,26 @@ for mentee_index, mentee_row in mentees.iterrows():
         # mentees are in the rows (we put mentees first!)
         match_matrix[mentee_index, mentor_index] = compute_similarity(mentee_row, mentor_row)
 
-print(match_matrix)
-
+#determine matches from matrix that minimize cost
 mentee_matches, mentor_matches = linear_sum_assignment(match_matrix)
-print(len(mentee_matches), len(mentor_matches))
-print(mentee_matches)
-print(mentor_matches)
 
-def summarize_data():
-    print('Mentors:', len(mentors))
-    print('Mentees:', len(mentees))
-    print(form_responses.describe())
+#metrics to ensure successful matching
+print("# mentors: ", number_mentors)
+print("# mentees: ", number_mentees)
+print("# mentee matches: ", len(mentee_matches))
+print("# mentor matches: ", len(mentor_matches))
+print("matches length equal: ", (len(mentee_matches) == len(mentor_matches)))
 
-summarize_data()
+#store matched mentees and mentors
+matched_mentees = mentees.iloc[mentee_matches].reset_index(drop=True)
+matched_mentors = mentors.iloc[mentor_matches].reset_index(drop=True)
+matches = matched_mentees.join(matched_mentors, lsuffix='_mentee', rsuffix='_mentor')
+#Output file
+matches.to_csv(path_or_buf='~/Desktop/matches.csv', index=False)
 
+#unmatched mentees
+ix = [i for i in mentees.index if i not in mentee_matches]
+unmatched_mentees = mentees.loc[ix].reset_index(drop=True)
+#Output file
+unmatched_mentees.to_csv(path_or_buf='~/Desktop/unmatched_mentees.csv', index=False)
+print('# unmatched mentees: ', len(unmatched_mentees))
