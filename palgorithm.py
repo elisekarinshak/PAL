@@ -11,7 +11,7 @@ from scipy.optimize import linear_sum_assignment
 
 #Categorizing degrees:
 # Major bins
-businessBin = ["Accounting", "Accounting / International Business", "Actuarial Science Certificate", "Business & Political German Certificate", "Economics (A.B.)", "Economics (B.B.A.)", "Economics / International Business", "Environmental Economics & Management", "Finance", "Finance / International Business", "Financial Planning", "General Business (Griffin)", "General Business (Online)", "International Business", "Legal Studies Certificate", "Management", "Management / International Business", "Management Info Systems / Int'l Business", "Management Information Systems", "Marketing", "Marketing / International Business", "Pre-Business", "Pre-Law", "Real Estate", "Real Estate / International Business", "Risk Management & Insurance", "Risk Mgmt & Insurance / Int'l Business"]
+businessBin = ["Accounting", "Accounting / International Business", "Actuarial Science Certificate", "Business", "Business & Political German Certificate", "Economics (A.B.)", "Economics (B.B.A.)", "Economics / International Business", "Entrepreneurship Certificate", "Environmental Economics & Management", "Finance", "Finance / International Business", "Financial Planning", "General Business (Griffin)", "General Business (Online)", "International Business", "Legal Studies Certificate", "Management", "Management / International Business", "Management Info Systems / Int'l Business", "Management Information Systems", "Marketing", "Marketing / International Business", "Pre-Business", "Pre-Law", "Real Estate", "Real Estate / International Business", "Risk Management & Insurance", "Risk Mgmt & Insurance / Int'l Business"]
 spiaBin = ["Criminal Justice", "International Affairs", "Political Science", "Public Policy and Management"]
 gradyBin = ["Advertising", "Communication Sciences & Disorders", "Communication Studies", "Entertainment and Media Studies", "Journalism", "New Media Certificate", "Pre-Journalism", "Public Relations", "Journalism - Visual Journalism"]
 agricultureBin = ["Agribusiness", "Agribusiness Law Certificate", "Agricultural & Applied Economics", "Agricultural Communication", "Agricultural Education", "Agricultural Engineering", "Agriscience & Environmental Systems", "Agrosecurity Certificate", "Animal Health", "Animal Science", "Avian Biology", "Dairy Science", "Food Industry Marketing & Administration", "Food Science", "Horticulture", "Integrated Pest Management Certificate", "International Agriculture Certificate", "Local Food Systems Certificate", "Organic Agriculture Certificate", "Poultry Science"]
@@ -44,6 +44,7 @@ major_dict = {'business': businessBin, 'spia':spiaBin, 'grady': gradyBin, 'agric
 #Assigns category corresponding with degree type. Functional for multiple degrees within a cell.
 #row: instance of data - corresponds with survey response
 #label: either majors or minors; specifies type of degree to sort into categories
+#returns degree categories
 def find_categories(row, label):
     row_categories = []
     
@@ -74,11 +75,23 @@ def find_categories(row, label):
         
     return ';'.join(row_categories)
 #find categories
+    
+#Find data containing previous match for mentee
+#mentee_row: mentee to search for in previous data
+#returns an observation of previous match data
+def find_prev(mentee_row):
+    prev = prev_matches[prev_matches["first_name_mentee"] == mentee_row["first_name"]]
+    if (len(prev) != 0):
+        prev = prev[prev["last_name_mentee"] == mentee_row["last_name"]]
+    
+    return prev
+#find_prev
 
 #Determines fit of matches by computing similarity. Compares majors, minors, 
 #categories, and professional track.
 #mentee: all mentee data
 #mentor: all mentor data
+#returns value of similarity cost function
 def compute_similarity(mentee, mentor):
     #algorithm weights
     major_type = 5
@@ -86,6 +99,7 @@ def compute_similarity(mentee, mentor):
     minor_type = 2
     same_minor_bonus = 1
     professional = 8
+    rematch_penalty = -30
     max_score = major_type + same_major_bonus + minor_type + same_minor_bonus + professional
     
     # step 1, compute major similarity
@@ -138,6 +152,14 @@ def compute_similarity(mentee, mentor):
                     if minor in mentor_mins:
                         score = score + same_minor_bonus
     
+    #step 4, check if previously matched
+    if mentee['prev_participant'] == "Yes":
+        prev_match = find_prev(mentee)
+        if len(prev_match) != 0:
+            if (mentor['first_name'] == prev_match['first_name_mentor'].iloc[0]) & (mentor['last_name'] == prev_match['last_name_mentor'].iloc[0]):               
+                #mentee and mentor were matched in the past
+                score = score + rematch_penalty   
+
     # this is, strictly speaking, a cost function
     return max_score - score
 #compute_similarity
@@ -145,10 +167,10 @@ def compute_similarity(mentee, mentor):
 
 #CODE
     
-#read in data
+#read in responses
 #labels for the Google form survey data 
-measured_attributes = ['timestamp', 'email', 'first_name', 'last_name', 'majors', 'minors', 'professional', 'phone', 'year', 'type', 'double_dawgs', 'fun_question']
-form_responses = pd.read_csv('~/Desktop/Involvement/HPSC/PAL/pal_responses_S2021.csv', delimiter=',', header=0, names=measured_attributes)
+measured_attributes = ['timestamp', 'email', 'first_name', 'last_name', 'majors', 'minors', 'professional', 'phone', 'year', 'type', 'prev_participant', 'double_dawgs', 'fun_question']
+form_responses = pd.read_csv('~/Desktop/Involvement/HPSC/PAL/sample_update.csv', delimiter=',', header=0, names=measured_attributes)
 form_responses.sort_values(by='timestamp', inplace=True)
 
 # drop all but the latest response of an individual
@@ -163,6 +185,12 @@ form_responses.loc[(form_responses['year'] == 'Senior'),'type']='Mentor'
 # separate into mentors and mentees
 mentees = form_responses.loc[form_responses['type'] == 'Mentee', :].reset_index(drop=True)
 mentors = form_responses.loc[form_responses['type'] == 'Mentor', :].reset_index(drop=True)
+
+#read in matches from past semester
+measured_attributes = ["timestamp_mentee", "email_mentee", "first_name_mentee", "last_name_mentee", "majors_mentee	", "minors_mentee", "professional_mentee", "phone_mentee", "year_mentee", "type_mentee", "double_dawgs_mentee", "fun_question_mentee", "major_category_mentee", "minor_category_mentee",
+                       "timestamp_mentor",	"email_mentor",	"first_name_mentor", "last_name_mentor", "majors_mentor	", "minors_mentor",	"professional_mentor", "phone_mentor",	"year_mentor", "type_mentor", "double_dawgs_mentor", "fun_question_mentor", "major_category_mentor", "minor_category_mentor"]
+prev_matches = pd.read_csv('~/Desktop/Involvement/HPSC/PAL/pal_matches_sp21.csv', delimiter=',', header=0, names=measured_attributes)
+
 
 #create match matrix
 number_mentors = len(mentors)
