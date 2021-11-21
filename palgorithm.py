@@ -22,7 +22,7 @@ humanitiesBin = ["Comparative Literature", "Film Studies", "History", "Honors In
 cultureBin = ["Classical Culture", "Classical Languages","English","French", "German", "Germanic & Slavic Languages", "Greek","Chinese Language & Literature", "British & Irish Studies Certificate", "Italian", "Japanese Language & Literatures", "Latin American & Caribbean Studies", "Latin American & Caribbean Studies Cert.", "Arabic","Asian Studies Certificate","Romance Languages", "Russian", "Spanish", "Chinese Language and Literature"]
 peopleBin = ["Dietetics", "Disability Studies Certificate", "Consumer Economics", "Consumer Foods", "Consumer Journalism", "Environmental Health Science", "Environmental Resource Science", "Exercise & Sport Science", "Family & Consumer Sciences Education", "Fashion Merchandising", "Health Promotion", "Housing Management and Policy", "Human Development and Family Science", "Leadership & Service Certificate", "Athletic Training", "Nutritional Sciences", "Personal & Org. Leadership Cert.", "Social Work", "Sociology", "Sport Management", "Turfgrass Management", "Psychology"]
 educationBin = ["Early Childhood Education", "Educ. Psych & Instructional Tech Certif.", "English Education", "Health and Physical Education", "Mathematics / Mathematics Education", "Mathematics Education", "Middle School Education", "Music Education", "Science Education", "Special Education", "World Language Education", "Biology / Science Education", "English / English Education","History / Social Studies Education"]
-natureBin = ["Ecology", "Ecology (A.B.)", "Ecology (B.S.)", "Fisheries & Wildlife", "Entomology", "Forestry", "Geographic Information Science Cert.", "Geography (A.B.)", "Geography (B.S.)", "Geology (A.B.)", "Geology (B.S.)", "Global Studies Certificate", "Community Forestry Certificate", "Natural Resource Recreation & Tourism", "Pre-Forest Resources", "Water & Soil Resources (B.S.E.S.)", "Water & Soil Resources (B.S.F.R.)", "Water Resources Certificate", "Coastal & Oceanographic Eng. Cert.", "Atmospheric Sciences", "Environmental Ethics Certificate"]
+natureBin = ["Ecology", "Ecology (A.B.)", "Ecology (B.S.)", "Fisheries & Wildlife", "Entomology", "Environmental Education Certificate", "Forestry", "Geographic Information Science Cert.", "Geography (A.B.)", "Geography (B.S.)", "Geology (A.B.)", "Geology (B.S.)", "Global Studies Certificate", "Community Forestry Certificate", "Natural Resource Recreation & Tourism", "Pre-Forest Resources", "Water & Soil Resources (B.S.E.S.)", "Water & Soil Resources (B.S.F.R.)", "Water Resources Certificate", "Coastal & Oceanographic Eng. Cert.", "Atmospheric Sciences", "Environmental Ethics Certificate"]
 engineeringBin = ["Electrical and Electronics Engineering", "Engineering Physics Certificate", "Engineering Science Certificate", "Computer Systems Engineering", "Computer Systems Engineering Certificate", "Civil Engineering", "Mechanical Engineering", "Biochemical Engineering", "Biological Engineering"]
 undecidedBin = ["Undecided"]
 
@@ -169,8 +169,8 @@ def compute_similarity(mentee, mentor):
     
 #read in responses
 #labels for the Google form survey data 
-measured_attributes = ['timestamp', 'email', 'first_name', 'last_name', 'majors', 'minors', 'professional', 'phone', 'year', 'type', 'prev_participant', 'double_dawgs', 'fun_question']
-form_responses = pd.read_csv('~/Desktop/Involvement/HPSC/PAL/sample_update.csv', delimiter=',', header=0, names=measured_attributes)
+measured_attributes = ['timestamp', 'email', 'first_name', 'last_name', 'majors', 'minors', 'professional', 'double_dawgs', 'phone', 'year', 'type', 'prev_participant', 'fun_question']
+form_responses = pd.read_csv('~/Desktop/Involvement/HSC/PAL/PAL_Fall_2021/pal_responses_F2021_R2.csv', delimiter=',', header=0, names=measured_attributes)
 form_responses.sort_values(by='timestamp', inplace=True)
 
 # drop all but the latest response of an individual
@@ -182,14 +182,15 @@ form_responses['minor_category'] = form_responses.apply(lambda row: find_categor
 form_responses.loc[(form_responses['year'] == 'Freshman'),'type']='Mentee'
 form_responses.loc[(form_responses['year'] == 'Junior'),'type']='Mentor'
 form_responses.loc[(form_responses['year'] == 'Senior'),'type']='Mentor'
+print(form_responses)
 # separate into mentors and mentees
 mentees = form_responses.loc[form_responses['type'] == 'Mentee', :].reset_index(drop=True)
 mentors = form_responses.loc[form_responses['type'] == 'Mentor', :].reset_index(drop=True)
 
 #read in matches from past semester
-measured_attributes = ["timestamp_mentee", "email_mentee", "first_name_mentee", "last_name_mentee", "majors_mentee	", "minors_mentee", "professional_mentee", "phone_mentee", "year_mentee", "type_mentee", "double_dawgs_mentee", "fun_question_mentee", "major_category_mentee", "minor_category_mentee",
-                       "timestamp_mentor",	"email_mentor",	"first_name_mentor", "last_name_mentor", "majors_mentor	", "minors_mentor",	"professional_mentor", "phone_mentor",	"year_mentor", "type_mentor", "double_dawgs_mentor", "fun_question_mentor", "major_category_mentor", "minor_category_mentor"]
-prev_matches = pd.read_csv('~/Desktop/Involvement/HPSC/PAL/pal_matches_sp21.csv', delimiter=',', header=0, names=measured_attributes)
+measured_attributes = ["timestamp_mentee", "email_mentee", "first_name_mentee", "last_name_mentee", "majors_mentee	", "minors_mentee", "professional_mentee", "double_dawgs_mentee", "phone_mentee", "year_mentee", "type_mentee", "prev_participant_mentee", "fun_question_mentee", "major_category_mentee", "minor_category_mentee",
+                       "timestamp_mentor",	"email_mentor",	"first_name_mentor", "last_name_mentor", "majors_mentor	", "minors_mentor",	"professional_mentor", "double_dawgs_mentor", "phone_mentor",	"year_mentor", "type_mentor", "prev_participant_mentor", "fun_question_mentor", "major_category_mentor", "minor_category_mentor"]
+prev_matches = pd.read_csv('~/Desktop/Involvement/HSC/PAL/PAL_Spring_2021/pal_matches_sp21.csv', delimiter=',', header=0, names=measured_attributes)
 
 
 #create match matrix
